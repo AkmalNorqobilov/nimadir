@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <%- include ('../partials/css.ejs') %>
+</head>
+
+<body>
+    <div id="app">
+        <v-app>
+            <v-app-bar app color="blue"></v-app-bar>
+            <v-main>
+                <v-container>
+                    <v-form action="/auth/login" method="POST">
+                        <v-row justify="center">
+                            <v-col md="12">
+                                <v-text-field
+                                    name="email"
+                                    label="Email"
+                                ></v-text-field>
+                            </v-col>
+                            <v-col md="12">
+                                <v-text-field
+                                    name="password"
+                                    type="password"
+                                    label="Password"
+                                    id="id"
+                                ></v-text-field>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-btn block type="submit" outline color="success">Login</v-btn>
+                            </v-col>
+                        </v-row>
+                    </v-form>
+                </v-container>
+            </v-main>
+        </v-app>
+    </div>
+    <%- include ('../partials/js.ejs') %>
+        <script>
+            new Vue({
+                el: '#app',
+                data: {
+                    selectedPage: ""
+                },
+                methods: {
+                    changePage(page){
+                        console.log(page);
+                        this.selectedPage = page;
+                    }
+                },
+                vuetify: new Vuetify(),
+            })
+        </script>
+</body>
+
+</html>

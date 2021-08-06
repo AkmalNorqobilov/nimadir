@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <%- include ('./partials/css.ejs') %>
+</head>
+
+<body>
+    <div id="app">
+        <v-app>
+            <v-app-bar app color="blue"></v-app-bar>
+            <v-navigation-drawer absolute app>
+                <v-toolbar color="primary">
+                    <v-toolbar-title>
+                        Admin App
+                    </v-toolbar-title>
+
+                </v-toolbar>
+
+                <v-list dense v-model="selectedPage">
+                    <v-list-item-group color="primary">
+                        <v-list-item v-on:click="" link exact>
+                            <v-list-item-icon>
+                                <v-icon v-text="'mdi-home'"></v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title v-text="'Dashboard'"></v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-list-item link href="/medicine">
+                            <v-list-item-icon>
+                                <v-icon v-text="'mdi-pharmacy'"></v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title v-text="'Medicine'"></v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-list-item link exact href="/category">
+                            <v-list-item-icon>
+                                <v-icon v-text="'mdi-shape'"></v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title v-text="'Category'"></v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-list-item link exact href="/tag">
+                            <v-list-item-icon>
+                                <v-icon v-text="'mdi-tag'"></v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title v-text="'Tag'"></v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                    </v-list-item-group>
+                </v-list>
+            </v-navigation-drawer>
+            <v-main>
+                <v-container fluid>
+                    <v-toolbar color="primary" dark>
+                        <v-toolbar-title>
+                            Tag
+                        </v-toolbar-title>
+                    </v-toolbar>
+
+                    <v-form :action="tag ? '/tag/update' : '/tag'" method="POST">
+                        <v-text-field  style="display: none;" name="id" :value="id"></v-text-field>
+                        <v-text-field  name="name" v-model="name" label="Tag Name"></v-text-field>
+                        <v-btn v-if="!tag" type="submit" light color="success"  >Create</v-btn>
+                        <v-btn v-else type="submit" light color="success"  >Update</v-btn>
+                        <v-btn v-if="tag" color="success" @click="clearForm()" >Clear Form</v-btn>
+                    </v-form>
+                    <template>
+                        <v-data-table :headers="headers" :items="<%=tags%>" :items-per-page="5" class="elevation-1">
+                            <template v-slot:item="row">
+                                <tr>
+                                    <td>{{ row.item.name }}</td>
+                                    <td>{{ row.item.createdAt }}</td>
+                                    <td>{{ row.item.updatedAt }}</td>
+                                    <td class="d-flex">
+                                        <v-btn fab dark x-small class="mr-3" color="yellow darken-3"
+                                            @click="setOne(row.item)">
+                                            <v-icon dark>mdi-pen</v-icon>
+                                        </v-btn>
+                                        <v-form action="/tag/delete" method="POST">
+                                            <v-text-field style="display: none;" name="_id" :value="row.item._id" label="label" id="id"></v-text-field>
+                                            <v-btn type="submit" fab dark x-small color="error" @click="deleteItem(row.item)">
+                                                <v-icon>mdi-delete</v-icon>
+                                            </v-btn>
+                                        </v-form>
+                                    </td>
+                                </tr>
+                            </template>
+
+                        </v-data-table>
+                    </template>
+                </v-container>
+            </v-main>
+        </v-app>
+    </div>
+    <%- include ('./partials/js.ejs') %>
+        <script>
+            new Vue({
+                el: '#app',
+                data: {
+                    headers: [
+                        {
+                            text: "Name", value: "name",
+                        },
+                        {
+                            text: "Created At", value: "createdAt",
+                        },
+                        {
+                            text: "Updated At", value: "updatedAt",
+                        },
+                        {
+                            text: "Actions", sortable: false, value: ""
+                        }
+                    ],
+                    selectedPage: 3,
+                    tag: null,
+                    name: "",
+                    id: "",
+                },
+                methods: {
+                    setOne(tag){
+                        this.tag = tag;
+                        this.name = this.tag.name,
+                        this.id = this.tag._id 
+                    },
+                    clearForm(){
+                        this.tag= null;
+                        this.name = "";
+                        this.id = "";
+                    },
+                    changePage(page) {
+                        console.log(page);
+                        this.selectedPage = page;
+                    }
+                },
+                vuetify: new Vuetify(),
+            })
+        </script>
+</body>
+
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <%- include ('./partials/css.ejs') %>
+</head>
+
+<body>
+    <div id="app">
+        <v-app>
+            <v-app-bar absolute app color="blue"></v-app-bar>
+            <v-navigation-drawer absolute app>
+                <v-toolbar color="primary">
+                    <v-toolbar-title>
+                        Admin App
+                    </v-toolbar-title>
+
+                </v-toolbar>
+
+                <v-list dense v-model="selectedPage">
+                    <v-list-item-group color="primary">
+                        <v-list-item v-on:click="" link exact>
+                            <v-list-item-icon>
+                                <v-icon v-text="'mdi-home'"></v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title v-text="'Dashboard'"></v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-list-item link href="/medicine">
+                            <v-list-item-icon>
+                                <v-icon v-text="'mdi-pharmacy'"></v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title v-text="'Medicine'"></v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-list-item link exact href="/category">
+                            <v-list-item-icon>
+                                <v-icon v-text="'mdi-shape'"></v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title v-text="'Category'"></v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-list-item link exact href="/tag">
+                            <v-list-item-icon>
+                                <v-icon v-text="'mdi-tag'"></v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title v-text="'Tag'"></v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                    </v-list-item-group>
+                </v-list>
+            </v-navigation-drawer>
+            <v-main>
+                <v-container fluid>
+                    <v-toolbar color="primary" dark>
+                        <v-toolbar-title>
+                            Medicine
+                        </v-toolbar-title>
+                    </v-toolbar>
+                    <form :action="medicine?'/medicine/update':'/medicine'" enctype="multipart/form-data" method="POST">
+                        <v-text-field v-if="medicine" name="id" v-model="id" style="display: none;"></v-text-field>
+                        <v-row>
+                            <v-col cols="6">
+                                <v-text-field v-model="name" name="name" label="Medicine Name"></v-text-field>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-text-field v-model="price" name="price" type="number" label="Medicine Price"></v-text-field>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-textarea v-model="description" outlined placeholder="Please enter description" name="description"
+                                    label="Description about Medicine">
+                                </v-textarea>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-text-field v-model="quantity" name="quantity" label="Quantity of this Medicine"></v-text-field>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-select :items="<%=categories%>" v-model="category" name="category" item-text="name" item-value="_id"
+                                    label="Select Category">
+                                </v-select>
+                            </v-col>
+                            <v-col cols="6">
+                                {{tags}}
+                                <v-autocomplete v-model="tags" name="tags" :items="<%=tags%>"  item-text="name" item-value="_id" chips
+                                    small-chips label="Select Tags" multiple></v-autocomplete>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-file-input v-model="image" name="image"></v-file-input>
+                            </v-col>
+                        </v-row>
+                        <v-btn v-if="!medicine" type="submit"  light color="success" >Create</v-btn>
+                        <v-btn v-else type="submit" light color="success" >Update</v-btn>
+                        <v-btn v-if="medicine" type="submit" light color="success" @click="clearForm()">Clear Form</v-btn>
+                    </form>
+                    <template>
+                        <v-data-table :headers="headers" :items="<%=medicines   %>" :items-per-page="5"
+                            class="elevation-1">
+                            <template v-slot:item="row">
+                                <tr>
+                                    <td class="py-2">{{ row.item.name }}</td>
+                                    <td class="py-2"><img :src="`/public/${row.item?.image}`" alt="rasm yo'q"
+                                            width="100" /></td>
+                                    <td class="py-2">{{ row.item.price }}</td>
+                                    <td class="py-2">{{ row.item.quantity }} ta</td>
+                                    <td class="py-2">{{ row.item.description}}</td>
+                                    <td class="py-2">{{ row.item.category?.name }}</td>
+                                    <td class="d-flex justify-center align-center">
+                                        <v-btn fab dark x-small class="mr-3" color="yellow darken-3"
+                                            @click="setOne(row.item)">
+                                            <v-icon dark>mdi-pen</v-icon>
+                                        </v-btn>
+                                        <v-form action="/medicine/delete" method="POST">
+                                            <v-text-field style="display: none;" name="_id" :value="row.item._id"
+                                                label="label" id="id"></v-text-field>
+                                            <v-btn type="submit" fab dark x-small color="error"
+                                                @click="deleteItem(row.item)">
+                                                <v-icon>mdi-delete</v-icon>
+                                            </v-btn>
+                                        </v-form>
+                                    </td>
+                                </tr>
+                            </template>
+
+                        </v-data-table>
+                    </template>
+                </v-container>
+            </v-main>
+        </v-app>
+    </div>
+    <%- include ('./partials/js.ejs') %>
+        <script>
+            new Vue({
+                el: '#app',
+                data: {
+                    headers: [
+                        {
+                            text: "Name", value: "name",
+                        },
+                        {
+                            text: "Image", value: "image",
+                        },
+                        {
+                            text: "Price", value: "price",
+                        },
+                        {
+                            text: "Quantity", value: "quantity",
+                        },
+                        {
+                            text: "Description", value: "description",
+                        },
+                        {
+                            text: "Category", value: "category",
+                        },
+                        {
+                            text: "Actions", sortable: false, value: ""
+                        }
+                    ],
+                    selectedPage: "",
+                    medicine: null,
+                    name: "",
+                    price: "",
+                    description: "",
+                    quantity: "",
+                    image: "",
+                    category: "",
+                    tags: ""
+                },
+                methods: {
+                    setOne(medicine) {
+                        this.medicine = medicine;
+                        this.name = this.medicine.name;
+                        this.id = this.medicine._id;
+                        this.price = this.medicine.price;
+                        this.description = this.medicine.description;
+                        this.quantity = this.medicine.quantity;
+                        this.image = this.medicine.image;
+                        this.category = this.medicine.category;
+                        this.tags = this.medicine.tags;
+                    },
+                    clearForm() {
+                        this.name = "";
+                        this.id = "";
+                        this.medicine = null;
+                        this.name = "";
+                        this.id = "";
+                        this.price = "";
+                        this.description = "";
+                        this.quantity = "";
+                        this.image = "";
+                        this.category = "";
+                        this.tags = "";
+                    },
+
+                    changePage(page) {
+                        console.log(page);
+                        this.selectedPage = page;
+                    }
+                },
+                vuetify: new Vuetify(),
+            })
+        </script>
+</body>
+
+</html>
